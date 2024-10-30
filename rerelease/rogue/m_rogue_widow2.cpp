@@ -960,8 +960,13 @@ MONSTERINFO_CHECKATTACK(Widow2_CheckAttack) (edict_t *self) -> bool
 			// go ahead and spawn stuff if we're mad a a client
 			if (self->enemy->client && M_SlotsLeft(self) >= 2)
 			{
-				self->monsterinfo.attack_state = AS_BLIND;
-				return true;
+				if (un_monster_blindfire->integer == 1)
+				{
+					self->monsterinfo.attack_state = AS_BLIND;
+					return true;
+				} else {
+					return false;
+				}
 			}
 
 			// PGM - we want them to go ahead and shoot at info_notnulls if they can.

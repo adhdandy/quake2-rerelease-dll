@@ -354,9 +354,12 @@ void guncmdr_dead(edict_t *self)
 
 static void guncmdr_shrink(edict_t *self)
 {
-	self->maxs[2] = -4 * self->s.scale;
-	self->svflags |= SVF_DEADMONSTER;
-	gi.linkentity(self);
+	if (un_monster_die_noclip->integer == 1)
+	{
+		self->maxs[2] = -4 * self->s.scale;
+		self->svflags |= SVF_DEADMONSTER;
+		gi.linkentity(self);
+	}
 }
 
 mframe_t guncmdr_frames_death6[] = {
@@ -1258,6 +1261,9 @@ MMOVE_T(guncmdr_move_jump2) = { FRAME_c_jump01, FRAME_c_jump10, guncmdr_frames_j
 
 void guncmdr_jump(edict_t *self, blocked_jump_result_t result)
 {
+	if (un_monster_walkjump->integer == 0)
+		return;
+
 	if (!self->enemy)
 		return;
 

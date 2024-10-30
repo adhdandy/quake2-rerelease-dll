@@ -219,37 +219,53 @@ static int CheckPowerArmor(edict_t *ent, const vec3_t &point, const vec3_t &norm
 		damage = (2 * damage) / 3;
 	}
 
-	// Paril: fix small amounts of damage not
-	// being absorbed
-	damage = max(1, damage);
+	if (un_powershield_nerf->integer == 1)
+	{
+		// Paril: fix small amounts of damage not
+		// being absorbed
+		damage = max(1, damage);
+	}
 
 	save = *power * damagePerCell;
 
 	if (!save)
 		return 0;
 
-	// [Paril-KEX] energy damage should do more to power armor, not ETF Rifle shots.
-	if (dflags & DAMAGE_ENERGY)
-		save = max(1, save / 2);
+	if (un_powershield_nerf->integer == 1)
+	{
+		// [Paril-KEX] energy damage should do more to power armor, not ETF Rifle shots.
+		if (dflags & DAMAGE_ENERGY)
+			save = max(1, save / 2);
+	}
 
 	if (save > damage)
 		save = damage;
 
-	// [Paril-KEX] energy damage should do more to power armor, not ETF Rifle shots.
-	if (dflags & DAMAGE_ENERGY)
-		power_used = (save / damagePerCell) * 2;
-	else
-		power_used = save / damagePerCell;
+	power_used = save / damagePerCell;
 
-	power_used = max(1, power_used);
+	if (un_powershield_nerf->integer == 1)
+	{
+		// [Paril-KEX] energy damage should do more to power armor, not ETF Rifle shots.
+		if (dflags & DAMAGE_ENERGY)
+		{
+			power_used = (save / damagePerCell) * 2;
+		}
+
+		power_used = max(1, power_used);
+	}
 
 	SpawnDamage(pa_te_type, point, normal, save);
 	ent->powerarmor_time = level.time + 200_ms;
 
-	// Paril: adjustment so that power armor
-	// always uses damagePerCell even if it does
-	// only a single point of damage
-	*power = max(0, *power - max(damagePerCell, power_used));
+	if (un_powershield_nerf->integer == 1)
+	{
+		// Paril: adjustment so that power armor
+		// always uses damagePerCell even if it does
+		// only a single point of damage
+		*power = max(0, *power - max(damagePerCell, power_used));
+	} else {
+		*power = max(0, *power - power_used);
+	}
 
 	// check power armor turn-off states
 	if (ent->client)

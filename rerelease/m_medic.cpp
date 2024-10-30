@@ -679,9 +679,12 @@ void medic_dead(edict_t *self)
 
 static void medic_shrink(edict_t *self)
 {
-	self->maxs[2] = -2;
-	self->svflags |= SVF_DEADMONSTER;
-	gi.linkentity(self);
+	if (un_monster_die_noclip->integer == 1)
+	{
+		self->maxs[2] = -2;
+		self->svflags |= SVF_DEADMONSTER;
+		gi.linkentity(self);
+	}
 }
 
 mframe_t medic_frames_death[] = {
@@ -1435,10 +1438,13 @@ MONSTERINFO_CHECKATTACK(medic_checkattack) (edict_t *self) -> bool
 		}
 	}
 
-	if (self->enemy->client && !visible(self, self->enemy) && M_SlotsLeft(self))
+	if (un_monster_blindfire->integer == 1)
 	{
-		self->monsterinfo.attack_state = AS_BLIND;
-		return true;
+		if (self->enemy->client && !visible(self, self->enemy) && M_SlotsLeft(self))
+		{
+			self->monsterinfo.attack_state = AS_BLIND;
+			return true;
+		}
 	}
 
 	// give a LARGE bias to spawning things when we have room

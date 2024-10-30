@@ -1389,9 +1389,12 @@ void soldier_dead(edict_t *self)
 
 static void soldier_death_shrink(edict_t *self)
 {
-	self->svflags |= SVF_DEADMONSTER;
-	self->maxs[2] = 0;
-	gi.linkentity(self);
+	if (un_monster_die_noclip->integer == 1)
+	{
+		self->svflags |= SVF_DEADMONSTER;
+		self->maxs[2] = 0;
+		gi.linkentity(self);
+	}
 }
 
 mframe_t soldier_frames_death1[] = {

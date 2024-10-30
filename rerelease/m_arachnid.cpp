@@ -55,7 +55,10 @@ static int sound_step;
 
 void arachnid_footstep(edict_t *self)
 {
-	gi.sound(self, CHAN_BODY, sound_step, 0.5f, ATTN_IDLE, 0.0f);
+	if (un_monster_footsteps->integer == 1)
+	{
+		gi.sound(self, CHAN_BODY, sound_step, 0.5f, ATTN_IDLE, 0.0f);
+	}
 }
 
 mframe_t arachnid_frames_walk[] = {

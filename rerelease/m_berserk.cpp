@@ -258,7 +258,12 @@ static void berserk_attack_slam(edict_t *self)
 	self->velocity = {};
 	self->flags |= FL_KILL_VELOCITY;
 
-	T_SlamRadiusDamage(tr.endpos, self, self, 35, 150.f, self, 275, MOD_UNKNOWN);
+	int radius = 275;
+	if (un_berserker_jump->integer == 2)
+	{
+		radius = MELEE_DISTANCE * 3;
+	}
+	T_SlamRadiusDamage(tr.endpos, self, self, 35, 150.f, self, radius, MOD_UNKNOWN);
 }
 
 TOUCH(berserk_jump_touch) (edict_t *self, edict_t *other, const trace_t &tr, bool other_touching_self) -> void
@@ -430,22 +435,52 @@ mframe_t berserk_frames_run_attack1[] = {
 };
 MMOVE_T(berserk_move_run_attack1) = { FRAME_r_att1, FRAME_r_att18, berserk_frames_run_attack1, berserk_run };
 
+void berserk_jump_windup_complete(edict_t* self)
+{
+	M_SetAnimation(self, &berserk_move_attack_strike);
+}
+
+mframe_t berserk_frames_jump_windup[] = {
+	{ ai_move },
+	{ ai_move },
+	{ ai_move, 0, berserk_jump_windup_complete }
+};
+MMOVE_T(berserk_move_jump_windup) = { FRAME_jump1, FRAME_jump3, berserk_frames_jump_windup, berserk_run };
+
 MONSTERINFO_ATTACK(berserk_attack) (edict_t *self) -> void
 {
-	if (self->monsterinfo.melee_debounce_time <= level.time && (range_to(self, self->enemy) < MELEE_DISTANCE))
+	float range = range_to(self, self->enemy);
+
+	if (self->monsterinfo.melee_debounce_time <= level.time && (range < MELEE_DISTANCE))
+	{
 		berserk_melee(self);
+		return;
+	}
+
 	// only jump if they are far enough away for it to make sense (otherwise
 	// it gets annoying to have them keep hopping over and over again)
-	else if (!self->spawnflags.has(SPAWNFLAG_BERSERK_NOJUMPING) && (self->timestamp < level.time && brandom()) && range_to(self, self->enemy) > 150.f)
+	if (!self->spawnflags.has(SPAWNFLAG_BERSERK_NOJUMPING) && (self->timestamp < level.time && brandom()) && range > 150.f)
 	{
-		M_SetAnimation(self, &berserk_move_attack_strike);
-		// don't do this for a while, otherwise we just keep doing it
-		self->timestamp = level.time + 5_sec;
+		if (un_berserker_jump->integer == 2)
+		{
+			M_SetAnimation(self, &berserk_move_jump_windup);
+			self->timestamp = level.time + 5_sec;
+			return;
+		}
+		else if (un_berserker_jump->integer == 1)
+		{
+			M_SetAnimation(self, &berserk_move_attack_strike);
+			// don't do this for a while, otherwise we just keep doing it
+			self->timestamp = level.time + 5_sec;
+			return;
+		}
 	}
-	else if (self->monsterinfo.active_move == &berserk_move_run1 && (range_to(self, self->enemy) <= RANGE_NEAR))
+
+	if (self->monsterinfo.active_move == &berserk_move_run1 && (range <= RANGE_NEAR))
 	{
 		M_SetAnimation(self, &berserk_move_run_attack1);
 		self->monsterinfo.nextframe = FRAME_r_att1 + (self->s.frame - FRAME_run1) + 1;
+		return;
 	}
 }
 
@@ -488,6 +523,7 @@ PAIN(berserk_pain) (edict_t *self, edict_t *other, float kick, int damage, const
 	// if we're jumping, don't pain
 	if ((self->monsterinfo.active_move == &berserk_move_jump) ||
 		(self->monsterinfo.active_move == &berserk_move_jump2) ||
+		(self->monsterinfo.active_move == &berserk_move_jump_windup) ||
 		(self->monsterinfo.active_move == &berserk_move_attack_strike))
 	{
 		return;
@@ -527,9 +563,12 @@ void berserk_dead(edict_t *self)
 
 static void berserk_shrink(edict_t *self)
 {
-	self->maxs[2] = 0;
-	self->svflags |= SVF_DEADMONSTER;
-	gi.linkentity(self);
+	if (un_monster_die_noclip->integer == 1)
+	{
+		self->maxs[2] = 0;
+		self->svflags |= SVF_DEADMONSTER;
+		gi.linkentity(self);
+	}
 }
 
 mframe_t berserk_frames_death1[] = {
@@ -656,6 +695,9 @@ MMOVE_T(berserk_move_jump2) = { FRAME_jump1, FRAME_jump9, berserk_frames_jump2, 
 
 void berserk_jump(edict_t *self, blocked_jump_result_t result)
 {
+	if (un_monster_walkjump->integer == 0)
+		return;
+
 	if (!self->enemy)
 		return;
 
@@ -688,6 +730,7 @@ MONSTERINFO_SIDESTEP(berserk_sidestep) (edict_t *self) -> bool
 	// if we're jumping or in long pain, don't dodge
 	if ((self->monsterinfo.active_move == &berserk_move_jump) ||
 		(self->monsterinfo.active_move == &berserk_move_jump2) ||
+		(self->monsterinfo.active_move == &berserk_move_jump_windup) ||
 		(self->monsterinfo.active_move == &berserk_move_attack_strike) ||
 		(self->monsterinfo.active_move == &berserk_move_pain2))
 		return false;

@@ -210,7 +210,12 @@ void Cmd_Give_f(edict_t *ent)
 			return;
 	}
 
-	if (give_all)
+	if (give_all || Q_strcasecmp(name, "compass") == 0)
+	{
+		ent->client->pers.inventory[IT_ITEM_COMPASS] = 1;
+	}
+
+	if (give_all || Q_strcasecmp(name, "powershield") == 0)
 	{
 		SpawnAndGiveItem(ent, IT_ITEM_POWER_SHIELD);
 

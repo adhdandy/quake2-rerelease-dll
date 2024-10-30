@@ -874,7 +874,7 @@ void InitClientPersistant(edict_t *ent, gclient_t *client)
 			if (level.start_items && *level.start_items)
 				Player_GiveStartItems(ent, level.start_items);
 
-			if (!deathmatch->integer)
+			if (!deathmatch->integer && un_compass->integer != 0)
 				client->pers.inventory[IT_ITEM_COMPASS] = 1;
 
 			// ZOID

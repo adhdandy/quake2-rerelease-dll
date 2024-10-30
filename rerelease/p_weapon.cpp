@@ -80,11 +80,11 @@ vec3_t P_CurrentKickOrigin(edict_t *ent)
 	return ent->client->kick.origin * P_CurrentKickFactor(ent);
 }
 
-void P_AddWeaponKick(edict_t *ent, const vec3_t &origin, const vec3_t &angles)
+void P_AddWeaponKick(edict_t *ent, const vec3_t &origin, const vec3_t &angles, gtime_t total)
 {
 	ent->client->kick.origin = origin;
 	ent->client->kick.angles = angles;
-	ent->client->kick.total = 200_ms;
+	ent->client->kick.total = total;
 	ent->client->kick.time = level.time + ent->client->kick.total;
 }
 
@@ -1346,10 +1346,15 @@ void Blaster_Fire(edict_t *ent, const vec3_t &g_offset, int damage, bool hyper, 
 	PlayerNoise(ent, start, PNOISE_WEAPON);
 }
 
-void Weapon_Blaster_Fire(edict_t *ent)
+void Weapon_Blaster_Fire(edict_t* ent)
 {
-	// give the blaster 15 across the board instead of just in dm
 	int damage = 15;
+
+	if (un_blaster_buff->integer == 0 && deathmatch->integer == 0)
+	{
+		damage = 10;
+	}
+
 	Blaster_Fire(ent, vec3_origin, damage, false, EF_BLASTER);
 }
 
@@ -1413,7 +1418,13 @@ void Weapon_HyperBlaster_Fire(edict_t *ent)
 				damage = 15;
 			else
 				damage = 20;
-			Blaster_Fire(ent, offset, damage, true, (ent->client->ps.gunframe % 4) ? EF_NONE : EF_HYPERBLASTER);
+
+			if (un_hyperblaster_trails->integer == 1)
+			{
+				Blaster_Fire(ent, offset, damage, true, EF_BLASTER);
+			} else {
+				Blaster_Fire(ent, offset, damage, true, (ent->client->ps.gunframe % 4) ? EF_NONE : EF_HYPERBLASTER);
+			}
 			Weapon_PowerupSound(ent);
 
 			G_RemoveAmmo(ent);
@@ -1459,6 +1470,9 @@ void Machinegun_Fire(edict_t *ent)
 	{
 		ent->client->machinegun_shots = 0;
 		ent->client->ps.gunframe = 6;
+
+		P_AddWeaponKick(ent, ent->client->kick.origin, ent->client->kick.angles, 200_ms);
+
 		return;
 	}
 
@@ -1480,29 +1494,41 @@ void Machinegun_Fire(edict_t *ent)
 		kick *= damage_multiplier;
 	}
 
-	vec3_t kick_origin {}, kick_angles {};
-	for (i = 0; i < 3; i++)
+	vec3_t kick_origin{}, kick_angles{}, project_angles{};
+	if (un_machinegun_smooth->integer == 0 && deathmatch->integer == 0)
 	{
-		kick_origin[i] = crandom() * 0.35f;
-		kick_angles[i] = crandom() * 0.7f;
-	}
-	//kick_angles[0] = ent->client->machinegun_shots * -1.5f;
-	P_AddWeaponKick(ent, kick_origin, kick_angles);
+		for (i = 1; i < 3; i++)
+		{
+			kick_origin[i] = crandom() * 0.18f;
+			kick_angles[i] = crandom() * 0.35f;
+		}
+		kick_origin[0] = crandom() * 0.18f;
+		kick_angles[0] = ent->client->machinegun_shots * -1.55f;
 
-	// raise the gun as it is firing
-	// [Paril-KEX] disabled as this is a bit hard to do with high
-	// tickrate, but it also just sucks in general.
-	/*if (!deathmatch->integer)
-	{
+		P_AddWeaponKick(ent, kick_origin, kick_angles, 750_ms);
+
 		ent->client->machinegun_shots++;
 		if (ent->client->machinegun_shots > 9)
 			ent->client->machinegun_shots = 9;
-	}*/
+
+		project_angles = ent->client->v_angle + kick_angles;
+	}
+	else
+	{
+		for (i = 0; i < 3; i++)
+		{
+			kick_origin[i] = crandom() * 0.35f;
+			kick_angles[i] = crandom() * 0.7f;
+		}
+		P_AddWeaponKick(ent, kick_origin, kick_angles);
+
+		project_angles = ent->client->v_angle;
+	}
 
 	// get start / end positions
 	vec3_t start, dir;
 	// Paril: kill sideways angle on hitscan
-	P_ProjectSource(ent, ent->client->v_angle, { 0, 0, -8 }, start, dir);
+	P_ProjectSource(ent, project_angles, { 0, 0, -8 }, start, dir);
 	G_LagCompensate(ent, start, dir);
 	fire_bullet(ent, start, dir, damage, kick, DEFAULT_BULLET_HSPREAD, DEFAULT_BULLET_VSPREAD, MOD_MACHINEGUN);
 	G_UnLagCompensate();
@@ -1778,6 +1804,12 @@ void weapon_railgun_fire(edict_t *ent)
 	int damage = 100;
 	int kick = 200;
 
+	if(un_railgun_nerf->integer == 0 && deathmatch->integer == 0)
+	{
+		damage = 150;
+		kick = 250;
+	}
+	
 	if (is_quad)
 	{
 		damage *= damage_multiplier;

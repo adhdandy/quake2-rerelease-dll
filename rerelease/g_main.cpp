@@ -27,6 +27,24 @@ int	  snd_fry;
 
 edict_t *g_edicts;
 
+cvar_t* un_railgun_nerf;
+cvar_t* un_berserker_jump;
+cvar_t* un_barrel_delay;
+cvar_t* un_machinegun_smooth;
+cvar_t* un_compass;
+cvar_t* un_hyperblaster_trails;
+cvar_t* un_monster_footsteps;
+cvar_t* un_blaster_buff;
+cvar_t* un_monster_die_noclip;
+cvar_t* un_monster_sidestep;
+cvar_t* un_monster_duck;
+cvar_t* un_monster_blindfire;
+cvar_t* un_monster_hyperaware;
+cvar_t* un_powershield_nerf;
+cvar_t* un_monster_walkjump;
+cvar_t* un_flyer_smother;
+cvar_t* un_damage_indicator;
+
 cvar_t *deathmatch;
 cvar_t *coop;
 cvar_t *skill;
@@ -173,6 +191,24 @@ void PreInitGame()
 	coop = gi.cvar("coop", "0", CVAR_LATCH);
 	teamplay = gi.cvar("teamplay", "0", CVAR_LATCH);
 
+	un_railgun_nerf = gi.cvar("un_railgun_nerf", "0", CVAR_LATCH);
+	un_berserker_jump = gi.cvar("un_berserker_jump", "0", CVAR_LATCH);
+	un_barrel_delay = gi.cvar("un_barrel_delay", "0", CVAR_LATCH);
+	un_machinegun_smooth = gi.cvar("un_machinegun_smooth", "0", CVAR_LATCH);
+	un_compass = gi.cvar("un_compass", "0", CVAR_LATCH);
+	un_hyperblaster_trails = gi.cvar("un_hyperblaster_trails", "0", CVAR_LATCH);
+	un_monster_footsteps = gi.cvar("un_monster_footsteps", "0", CVAR_LATCH);
+	un_blaster_buff = gi.cvar("un_blaster_buff", "0", CVAR_LATCH);
+	un_monster_die_noclip = gi.cvar("un_monster_die_noclip", "0", CVAR_LATCH);
+	un_monster_sidestep = gi.cvar("un_monster_sidestep", "0", CVAR_LATCH);
+	un_monster_duck = gi.cvar("un_monster_duck", "0", CVAR_LATCH);
+	un_monster_blindfire = gi.cvar("un_monster_blindfire", "0", CVAR_LATCH);
+	un_monster_hyperaware = gi.cvar("un_monster_hyperaware", "0", CVAR_LATCH);
+	un_powershield_nerf = gi.cvar("un_powershield_nerf", "0", CVAR_LATCH);
+	un_monster_walkjump = gi.cvar("un_monster_walkjump", "0", CVAR_LATCH);
+	un_flyer_smother = gi.cvar("un_flyer_smother", "0", CVAR_LATCH);
+	un_damage_indicator = gi.cvar("un_damage_indicator", "0", CVAR_LATCH);
+
 	// ZOID
 	CTFInit();
 	// ZOID
@@ -216,7 +252,7 @@ Called after PreInitGame when the game has set up cvars.
 */
 void InitGame()
 {
-	gi.Com_Print("==== InitGame ====\n");
+	gi.Com_Print("==== Unmaster ====\n");
 
 	InitSave();
 
