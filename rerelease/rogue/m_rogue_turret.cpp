@@ -851,9 +851,14 @@ MONSTERINFO_CHECKATTACK(turret_checkattack) (edict_t *self) -> bool
 								return false;
 							}
 
-							self->monsterinfo.attack_state = AS_BLIND;
-							self->monsterinfo.attack_finished = level.time + random_time(500_ms, 2.5_sec);
-							return true;
+							if (un_monster_blindfire->integer == 1)
+							{
+								self->monsterinfo.attack_state = AS_BLIND;
+								self->monsterinfo.attack_finished = level.time + random_time(500_ms, 2.5_sec);
+								return true;
+							} else {
+								return false;
+							}
 						}
 					}
 				}

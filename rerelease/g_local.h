@@ -1878,6 +1878,24 @@ template<typename T>
 	return irandom(2) == 0;
 }
 
+extern cvar_t* un_railgun_nerf;
+extern cvar_t* un_berserker_jump;
+extern cvar_t* un_barrel_delay;
+extern cvar_t* un_machinegun_smooth;
+extern cvar_t* un_compass;
+extern cvar_t* un_hyperblaster_trails;
+extern cvar_t* un_monster_footsteps;
+extern cvar_t* un_blaster_buff;
+extern cvar_t* un_monster_die_noclip;
+extern cvar_t* un_monster_sidestep;
+extern cvar_t* un_monster_duck;
+extern cvar_t* un_monster_blindfire;
+extern cvar_t* un_monster_hyperaware;
+extern cvar_t* un_powershield_nerf;
+extern cvar_t* un_monster_walkjump;
+extern cvar_t* un_flyer_smother;
+extern cvar_t* un_damage_indicator;
+
 extern cvar_t *deathmatch;
 extern cvar_t *coop;
 extern cvar_t *skill;
@@ -2343,7 +2361,7 @@ void fire_trap(edict_t *self, const vec3_t &start, const vec3_t &aimdir, int spe
 void fire_disintegrator(edict_t *self, const vec3_t &start, const vec3_t &dir, int speed);
 vec3_t P_CurrentKickAngles(edict_t *ent);
 vec3_t P_CurrentKickOrigin(edict_t *ent);
-void P_AddWeaponKick(edict_t *ent, const vec3_t &origin, const vec3_t &angles);
+void P_AddWeaponKick(edict_t *ent, const vec3_t &origin, const vec3_t &angles, gtime_t total = 200_ms);
 
 // we won't ever pierce more than this many entities for a single trace.
 constexpr size_t MAX_PIERCE = 16;
@@ -3281,8 +3299,11 @@ extern dm_game_rt DMGame;
 // [Paril-KEX]
 inline void monster_footstep(edict_t *self)
 {
-	if (self->groundentity)
-		self->s.event = EV_OTHER_FOOTSTEP;
+	if (un_monster_footsteps->integer == 1)
+	{
+		if (self->groundentity)
+			self->s.event = EV_OTHER_FOOTSTEP;
+	}
 }
 
 // [Kex] helpers

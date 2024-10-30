@@ -85,7 +85,10 @@ static cached_soundindex sound_step;
 
 void guardian_footstep(edict_t *self)
 {
-	gi.sound(self, CHAN_BODY, sound_step, 1.f, ATTN_NORM, 0.0f);
+	if (un_monster_footsteps->integer == 1)
+	{
+		gi.sound(self, CHAN_BODY, sound_step, 1.f, ATTN_NORM, 0.0f);
+	}
 }
 
 mframe_t guardian_frames_walk[] = {

@@ -751,6 +751,9 @@ MMOVE_T(parasite_move_jump_down) = { FRAME_jump01, FRAME_jump08, parasite_frames
 
 void parasite_jump(edict_t *self, blocked_jump_result_t result)
 {
+	if (un_monster_walkjump->integer == 0)
+		return;
+
 	if (!self->enemy)
 		return;
 
@@ -797,9 +800,12 @@ void parasite_dead(edict_t *self)
 
 static void parasite_shrink(edict_t *self)
 {
-	self->maxs[2] = 0;
-	self->svflags |= SVF_DEADMONSTER;
-	gi.linkentity(self);
+	if (un_monster_die_noclip->integer == 1)
+	{
+		self->maxs[2] = 0;
+		self->svflags |= SVF_DEADMONSTER;
+		gi.linkentity(self);
+	}
 }
 
 mframe_t parasite_frames_death[] = {

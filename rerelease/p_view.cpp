@@ -239,33 +239,36 @@ void P_DamageFeedback(edict_t *player)
 
 		client->v_dmg_time = level.time + DAMAGE_TIME();
 	}
-
-	// [Paril-KEX] send view indicators
-	if (client->num_damage_indicators)
+		
+	if (un_damage_indicator->integer == 1)
 	{
-		gi.WriteByte(svc_damage);
-		gi.WriteByte(client->num_damage_indicators);
-
-		for (uint8_t i = 0; i < client->num_damage_indicators; i++)
+		// [Paril-KEX] send view indicators
+		if (client->num_damage_indicators)
 		{
-			auto &indicator = client->damage_indicators[i];
+			gi.WriteByte(svc_damage);
+			gi.WriteByte(client->num_damage_indicators);
 
-			// encode total damage into 5 bits
-			uint8_t encoded = std::clamp((indicator.health + indicator.power + indicator.armor) / 3, 1, 0x1F);
+			for (uint8_t i = 0; i < client->num_damage_indicators; i++)
+			{
+				auto& indicator = client->damage_indicators[i];
 
-			// encode types in the latter 3 bits
-			if (indicator.health)
-				encoded |= 0x20;
-			if (indicator.armor)
-				encoded |= 0x40;
-			if (indicator.power)
-				encoded |= 0x80;
+				// encode total damage into 5 bits
+				uint8_t encoded = std::clamp((indicator.health + indicator.power + indicator.armor) / 3, 1, 0x1F);
 
-			gi.WriteByte(encoded);
-			gi.WriteDir((player->s.origin - indicator.from).normalized());
+				// encode types in the latter 3 bits
+				if (indicator.health)
+					encoded |= 0x20;
+				if (indicator.armor)
+					encoded |= 0x40;
+				if (indicator.power)
+					encoded |= 0x80;
+
+				gi.WriteByte(encoded);
+				gi.WriteDir((player->s.origin - indicator.from).normalized());
+			}
+
+			gi.unicast(player, false);
 		}
-
-		gi.unicast(player, false);
 	}
 
 	//

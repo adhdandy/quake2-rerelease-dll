@@ -1159,6 +1159,7 @@ MONSTERINFO_CHECKATTACK(Widow_CheckAttack) (edict_t *self) -> bool
 	}
 
 	return M_CheckAttack_Base(self, 0.4f, 0.8f, 0.7f, 0.6f, 0.5f, 0.f);
+
 }
 
 MONSTERINFO_BLOCKED(widow_blocked) (edict_t *self, float dist) -> bool

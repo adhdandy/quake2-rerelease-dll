@@ -309,9 +309,12 @@ void gladiator_dead(edict_t *self)
 
 static void gladiator_shrink(edict_t *self)
 {
-	self->maxs[2] = 0;
-	self->svflags |= SVF_DEADMONSTER;
-	gi.linkentity(self);
+	if (un_monster_die_noclip->integer == 1)
+	{
+		self->maxs[2] = 0;
+		self->svflags |= SVF_DEADMONSTER;
+		gi.linkentity(self);
+	}
 }
 
 mframe_t gladiator_frames_death[] = {

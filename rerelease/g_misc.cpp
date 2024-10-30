@@ -409,7 +409,11 @@ TOUCH(point_combat_touch) (edict_t *self, edict_t *other, const trace_t &tr, boo
 			return;
 
 		other->monsterinfo.pausetime = HOLD_FOREVER;
-		other->monsterinfo.aiflags |= AI_STAND_GROUND | AI_REACHED_HOLD_COMBAT | AI_THIRD_EYE;
+		other->monsterinfo.aiflags |= AI_STAND_GROUND | AI_REACHED_HOLD_COMBAT;
+		if (un_monster_hyperaware->integer == 1)
+		{
+			other->monsterinfo.aiflags |= AI_THIRD_EYE;
+		}
 		other->monsterinfo.stand(other);
 	}
 
@@ -1151,7 +1155,7 @@ DIE(barrel_delay) (edict_t *self, edict_t *inflictor, edict_t *attacker, int dam
 		return;
 	
 	// allow big booms to immediately blow up barrels (rockets, rail, other explosions) because it feels good and powerful
-	if (damage >= 90)
+	if (damage >= 90 || un_barrel_delay->integer == 0)
 	{
 		self->think = barrel_explode;
 		self->activator = attacker;

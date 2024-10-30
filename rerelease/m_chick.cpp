@@ -292,9 +292,12 @@ void chick_dead(edict_t *self)
 
 static void chick_shrink(edict_t *self)
 {
-	self->maxs[2] = 12;
-	self->svflags |= SVF_DEADMONSTER;
-	gi.linkentity(self);
+	if (un_monster_die_noclip->integer == 1)
+	{
+		self->maxs[2] = 12;
+		self->svflags |= SVF_DEADMONSTER;
+		gi.linkentity(self);
+	}
 }
 
 mframe_t chick_frames_death2[] = {

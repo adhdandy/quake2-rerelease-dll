@@ -330,9 +330,12 @@ void infantry_dead(edict_t *self)
 
 static void infantry_shrink(edict_t *self)
 {
-	self->maxs[2] = 0;
-	self->svflags |= SVF_DEADMONSTER;
-	gi.linkentity(self);
+	if (un_monster_die_noclip->integer == 1)
+	{
+		self->maxs[2] = 0;
+		self->svflags |= SVF_DEADMONSTER;
+		gi.linkentity(self);
+	}
 }
 
 mframe_t infantry_frames_death1[] = {
@@ -767,6 +770,9 @@ MMOVE_T(infantry_move_jump2) = { FRAME_jump01, FRAME_jump10, infantry_frames_jum
 
 void infantry_jump(edict_t *self, blocked_jump_result_t result)
 {
+	if (un_monster_walkjump->integer == 0)
+		return;
+
 	if (!self->enemy)
 		return;
 

@@ -231,9 +231,12 @@ MMOVE_T(brain_move_duck) = { FRAME_duck01, FRAME_duck08, brain_frames_duck, brai
 
 static void brain_shrink(edict_t *self)
 {
-	self->maxs[2] = 0;
-	self->svflags |= SVF_DEADMONSTER;
-	gi.linkentity(self);
+	if (un_monster_die_noclip->integer == 1)
+	{
+		self->maxs[2] = 0;
+		self->svflags |= SVF_DEADMONSTER;
+		gi.linkentity(self);
+	}
 }
 
 mframe_t brain_frames_death2[] = {

@@ -39,7 +39,10 @@ MONSTERINFO_SIGHT(tank_sight) (edict_t *self, edict_t *other) -> void
 
 void tank_footstep(edict_t *self)
 {
-	gi.sound(self, CHAN_BODY, sound_step, 1, ATTN_NORM, 0);
+	if (un_monster_footsteps->integer == 1)
+	{
+		gi.sound(self, CHAN_BODY, sound_step, 1, ATTN_NORM, 0);
+	}
 }
 
 void tank_thud(edict_t *self)
@@ -907,9 +910,12 @@ void tank_dead(edict_t *self)
 
 static void tank_shrink(edict_t *self)
 {
-	self->maxs[2] = 0;
-	self->svflags |= SVF_DEADMONSTER;
-	gi.linkentity(self);
+	if (un_monster_die_noclip->integer == 1)
+	{
+		self->maxs[2] = 0;
+		self->svflags |= SVF_DEADMONSTER;
+		gi.linkentity(self);
+	}
 }
 
 mframe_t tank_frames_death1[] = {

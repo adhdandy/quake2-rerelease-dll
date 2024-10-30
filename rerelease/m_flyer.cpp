@@ -761,8 +761,11 @@ void SP_monster_flyer(edict_t *self)
 	}
 	else
 	{
-		self->monsterinfo.aiflags |= AI_ALTERNATE_FLY;
-		self->monsterinfo.fly_buzzard = true;
+		if (un_flyer_smother->integer == 1)
+		{
+			self->monsterinfo.aiflags |= AI_ALTERNATE_FLY;
+			self->monsterinfo.fly_buzzard = true;
+		}
 		flyer_set_fly_parameters(self, false);
 		self->touch = flyer_touch;
 	}

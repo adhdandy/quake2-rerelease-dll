@@ -509,9 +509,12 @@ MONSTERINFO_SETSKIN(mutant_setskin) (edict_t *self) -> void
 
 void mutant_shrink(edict_t *self)
 {
-	self->maxs[2] = 0;
-	self->svflags |= SVF_DEADMONSTER;
-	gi.linkentity(self);
+	if (un_monster_die_noclip->integer == 1)
+	{
+		self->maxs[2] = 0;
+		self->svflags |= SVF_DEADMONSTER;
+		gi.linkentity(self);
+	}
 }
 
 // [Paril-KEX]
@@ -634,6 +637,9 @@ MMOVE_T(mutant_move_jump_down) = { FRAME_jump01, FRAME_jump05, mutant_frames_jum
 
 void mutant_jump_updown(edict_t *self, blocked_jump_result_t result)
 {
+	if (un_monster_walkjump->integer == 0)
+		return;
+
 	if (!self->enemy)
 		return;
 
